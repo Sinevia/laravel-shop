@@ -10,7 +10,7 @@ class Product extends BaseModel {
 
     protected $table = 'snv_shops_product';
     protected $primaryKey = 'Id';
-    public $timestamps = false;
+    public $timestamps = true;
     public $incrementing = false;
     public $useMicroId = true;
 
