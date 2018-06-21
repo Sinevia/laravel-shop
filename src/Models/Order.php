@@ -4,6 +4,7 @@ namespace Sinevia\Shop\Models;
 
 class Order extends BaseModel {
 
+    const STATUS_DRAFT = "Draft";
     const STATUS_PENDING_PAYMENT = "PendingPayment";
     const STATUS_PROCESSING = "Processing";
     const STATUS_ON_HOLD = "OnHold";
@@ -17,16 +18,16 @@ class Order extends BaseModel {
     public $timestamps = true;
     public $incrementing = false;
     public $useMicroid = false;
-    
     public static $statusList = [
-        STATUS_PENDING_PAYMENT => 'Pending Payment',
-        STATUS_PROCESSING => "Processing",
-        STATUS_COMPLETED => 'Completed',
-        STATUS_CANCELLED => 'Cancelled',
+        self::STATUS_DRAFT => 'Draft',
+        self::STATUS_PENDING_PAYMENT => 'Pending Payment',
+        self::STATUS_PROCESSING => "Processing",
+        self::STATUS_COMPLETED => 'Completed',
+        self::STATUS_CANCELLED => 'Cancelled',
     ];
 
     public static function tableCreate() {
-        $o = new self;
+        $o = new static;
 
         if (\Schema::connection($o->connection)->hasTable($o->table) == false) {
             return \Schema::connection($o->connection)->create($o->table, function (\Illuminate\Database\Schema\Blueprint $table) use ($o) {
@@ -44,7 +45,7 @@ class Order extends BaseModel {
     }
 
     public static function tableDelete() {
-        $o = new self;
+        $o = new static;
         return \Schema::connection($o->connection)->dropIfExists($o->table);
     }
 
