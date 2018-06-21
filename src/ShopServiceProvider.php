@@ -15,7 +15,7 @@ class ShopServiceProvider extends ServiceProvider {
         $this->publishes([
             dirname(__DIR__) . '/config/shop.php' => config_path('shop.php'),
             $this->loadMigrationsFrom(dirname(__DIR__) . '/database/migrations'),
-            $this->loadViewsFrom(dirname(__DIR__) . '/resources/views', 'cms'),
+            $this->loadViewsFrom(dirname(__DIR__) . '/resources/views', 'shop'),
             //$this->loadRoutesFrom(dirname(__DIR__).'/routes.php'),            
         ]);
     }
