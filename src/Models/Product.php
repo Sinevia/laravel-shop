@@ -21,7 +21,7 @@ class Product extends BaseModel {
             return \Schema::connection($o->connection)->create($o->table, function (\Illuminate\Database\Schema\Blueprint $table) use ($o) {
                         $table->engine = 'InnoDB';
                         $table->string($o->primaryKey, 40)->primary();
-                        $table->enum('Status',[self::STATUS_DRAFT,self::STATUS_PUBLISHED,self::STATUS_UNPUBLISHED,self::STATUS_DELETED])->default(self::STATUS_DRAFT);
+                        $table->enum('Status',[self::STATUS_DRAFT,self::STATUS_PUBLISHED,self::STATUS_UNPUBLISHED])->default(self::STATUS_DRAFT);
                         $table->string('CategoryId', 40)->index();
                         $table->string('Title', 255);
                         $table->text('Summary')->nullable()->default(NULL);
