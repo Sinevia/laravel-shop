@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Shops;
+namespace Sinevia\Shop\Models;
 
 class Order extends BaseModel {
 
