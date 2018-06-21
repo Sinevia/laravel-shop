@@ -1,6 +1,6 @@
 <?php
 
-namespace Sinevia\Cms\Models;
+namespace Sinevia\Shop\Models;
 
 class Product extends BaseModel {
 
