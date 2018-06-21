@@ -42,6 +42,33 @@
                     </select>
                 </div>
 
+                <div class="form-group">
+                    <label class="sr-only" for="filter_category">Category</label>
+
+                    <select id="filter_category" name="filter_category" class="form-control" onchange="form_filter.submit();">
+                        <?php $selected = ($filterCategory == '') ? 'selected="selected"' : ''; ?>
+                        <option value="" <?php echo $selected ?> >- Category -</option>
+                        <optgroup label="Categories">
+                            <?php foreach ($roots as $root) { ?>
+                                <?php $nodes = $root->traverse(); ?>
+                                <?php foreach ($nodes as $node) { ?>
+                                    <?php
+                                    $nodeId = $node['Id'];
+                                    $path = $node->getPath();
+                                    $selected = ($filterCategory != $nodeId) ? '' : ' selected="selected"';
+                                    if (count($path) != 1) {
+                                        $node_name = str_repeat("&nbsp;&nbsp;", count($path) - 1) . '- ' . $node["Title"];
+                                    } else {
+                                        $node_name = $node["Title"];
+                                    }
+                                    ?>
+                                    <option value="<?php echo $node['Id']; ?>" <?php echo $selected; ?>><?php echo $node_name; ?></option>
+                                <?php } ?>
+                            <?php } ?>
+                        </optgroup>
+                    </select>
+                </div>
+
                 <button class="btn btn-primary">
                     <span class="glyphicon glyphicon-search"></span>
                 </button>
@@ -95,17 +122,8 @@
                         }
                         ?>
                     </a>,
-                    <a href="?cmd=products-manager&amp;by=Alias&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
-                        Alias&nbsp;<?php
-                        if ($orderby === 'Alias') {
-                            if ($sort == 'asc') {
-                                ?>&#8595;<?php } else { ?>&#8593;<?php
-                            }
-                        }
-                        ?>
-                    </a>,
                     <a href="?cmd=products-manager&amp;by=id&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
-                        ID&nbsp;<?php
+                        Ref&nbsp;<?php
                         if ($orderby === 'Id') {
                             if ($sort == 'asc') {
                                 ?>&#8595;<?php } else { ?>&#8593;<?php
@@ -125,7 +143,30 @@
                         ?>
                     </a>
                 </th>
-                <th style="text-align:center;width:160px;">Action</th>
+                <th style="text-align:center;width:100px;">
+                    <a href="?cmd=products-manager&amp;by=status&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
+                        Price&nbsp;<?php
+                        if ($orderby === 'status') {
+                            if ($sort == 'asc') {
+                                ?>&#8595;<?php } else { ?>&#8593;<?php
+                            }
+                        }
+                        ?>
+                    </a>
+                </th>
+                <th style="text-align:center;width:100px;">
+                    <a href="?cmd=products-manager&amp;by=status&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
+                        Quantity&nbsp;<?php
+                        if ($orderby === 'status') {
+                            if ($sort == 'asc') {
+                                ?>&#8595;<?php } else { ?>&#8593;<?php
+                            }
+                        }
+                        ?>
+                    </a>
+                </th>
+                <th style="text-align:center;width:100px;">Category</th>
+                <th style="text-align:center;width:200px;">Action</th>
             </tr>
 
             <?php foreach ($products as $product) { ?>
@@ -142,6 +183,20 @@
                         </div>
                     <td style="text-align:center;vertical-align: middle;">
                         <?php echo $product['Status']; ?><br>
+                    </td>
+                    <td style="text-align:center;vertical-align: middle;">
+                        <?php echo $product['Price']; ?><br>
+                    </td>
+                    <td style="text-align:center;vertical-align: middle;">
+                        <?php echo $product['Quantity']; ?><br>
+                    </td>
+                    <td style="text-align:center;vertical-align: middle;">
+                        <?php $category = Sinevia\Shop\Models\Category::find($product['CategoryId']); ?>
+                        <?php if ($category != null) { ?>
+                            <?php echo $category['Title']; ?>
+                        <?php } else { ?>
+                            Unassigned
+                        <?php } ?>
                     </td>
                     <td style="text-align:center;vertical-align: middle;">
                         <a href="<?php // echo $product->url(); ?>" class="btn btn-sm btn-success" target="_blank">
