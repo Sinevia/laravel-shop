@@ -15,13 +15,13 @@
 <ol class="breadcrumb">
     <li><a href="<?php echo \Sinevia\Shop\Helpers\Links::adminHome(); ?>"><i class="fa fa-dashboard"></i> Home</a></li>
     <li><a href="<?php echo \Sinevia\Shop\Helpers\Links::adminProductManager(); ?>">Shop</a></li>
-    <li class="active"><a href="<?php echo \Sinevia\Cms\Helpers\Links::adminPageManager(); ?>">Products</a></li>
+    <li class="active"><a href="<?php echo \Sinevia\Shop\Helpers\Links::adminProductManager(); ?>">Products</a></li>
 </ol>
 @stop
 
 @section('webpage_content')
 
-@include('cms::shared.navigation')
+@include('shop::shared.navigation')
 
 <div class="box box-primary">
     <div class="box-header with-border">
@@ -46,9 +46,9 @@
                     <span class="glyphicon glyphicon-search"></span>
                 </button>
 
-                <button type="button" class="btn btn-primary pull-right" onclick="showPageCreateModal();">
+                <button type="button" class="btn btn-primary pull-right" onclick="showProductCreateModal();">
                     <span class="glyphicon glyphicon-plus-sign"></span>
-                    Add Page
+                    Add Product
                 </button>
             </form>
         </div>
@@ -86,7 +86,7 @@
         <table id="table_articles" class="table table-striped">
             <tr>
                 <th style="text-align:center;">
-                    <a href="?cmd=pages-manager&amp;by=Title&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
+                    <a href="?cmd=products-manager&amp;by=Title&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
                         Title&nbsp;<?php
                         if ($orderby === 'Title') {
                             if ($sort == 'asc') {
@@ -95,7 +95,7 @@
                         }
                         ?>
                     </a>,
-                    <a href="?cmd=pages-manager&amp;by=Alias&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
+                    <a href="?cmd=products-manager&amp;by=Alias&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
                         Alias&nbsp;<?php
                         if ($orderby === 'Alias') {
                             if ($sort == 'asc') {
@@ -104,7 +104,7 @@
                         }
                         ?>
                     </a>,
-                    <a href="?cmd=pages-manager&amp;by=id&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
+                    <a href="?cmd=products-manager&amp;by=id&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
                         ID&nbsp;<?php
                         if ($orderby === 'Id') {
                             if ($sort == 'asc') {
@@ -115,7 +115,7 @@
                     </a>
                 </th>
                 <th style="text-align:center;width:100px;">
-                    <a href="?cmd=pages-manager&amp;by=Status&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
+                    <a href="?cmd=products-manager&amp;by=Status&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
                         Status&nbsp;<?php
                         if ($orderby === 'Status') {
                             if ($sort == 'asc') {
@@ -128,40 +128,40 @@
                 <th style="text-align:center;width:160px;">Action</th>
             </tr>
 
-            <?php foreach ($pages as $page) { ?>
+            <?php foreach ($products as $product) { ?>
                 <tr>
                     <td>
                         <div style="color:#333;font-size: 14px;font-weight:bold;">
-                            <?php echo $page->Title; ?>
+                            <?php echo $product->Title; ?>
                         </div>                        
                         <div style="color:#333;font-size: 12px;font-style:italic;">
-                            <?php echo $page->Alias; ?>
+                            <?php echo $product->Alias; ?>
                         </div>
                         <div style="color:#999;font-size: 10px;">
-                            ref. <?php echo $page->Id; ?>
+                            ref. <?php echo $product->Id; ?>
                         </div>
                     <td style="text-align:center;vertical-align: middle;">
-                        <?php echo $page['Status']; ?><br>
+                        <?php echo $product['Status']; ?><br>
                     </td>
                     <td style="text-align:center;vertical-align: middle;">
-                        <a href="<?php echo $page->url(); ?>" class="btn btn-sm btn-success" target="_blank">
+                        <a href="<?php echo $product->url(); ?>" class="btn btn-sm btn-success" target="_blank">
                             <span class="glyphicon glyphicon-eye-open"></span>
                             View
                         </a>
-                        <a href="<?php echo \Sinevia\Cms\Helpers\Links::adminPageUpdate(['PageId' => $page['Id']]); ?>" class="btn btn-sm btn-warning">
+                        <a href="<?php echo \Sinevia\Shop\Helpers\Links::adminProductUpdate(['ProductId' => $product['Id']]); ?>" class="btn btn-sm btn-warning">
                             <span class="glyphicon glyphicon-edit"></span>
                             Edit
                         </a>
 
-                        <?php if ($page->Status == 'Deleted') { ?>
-                            <button class="btn btn-sm btn-danger" onclick="confirmPageDelete('<?php echo $page->Id; ?>');">
+                        <?php if ($product->Status == 'Deleted') { ?>
+                            <button class="btn btn-sm btn-danger" onclick="confirmProductDelete('<?php echo $product->Id; ?>');">
                                 <span class="glyphicon glyphicon-remove-sign"></span>
                                 Delete
                             </button>
                         <?php } ?>
 
-                        <?php if ($page->Status != 'Deleted') { ?>
-                            <button class="btn btn-sm btn-danger" onclick="confirmPageMoveToTrash('<?php echo $page->Id; ?>');">
+                        <?php if ($product->Status != 'Deleted') { ?>
+                            <button class="btn btn-sm btn-danger" onclick="confirmProductMoveToTrash('<?php echo $product->Id; ?>');">
                                 <span class="glyphicon glyphicon-trash"></span>
                                 Trash
                             </button>
@@ -173,22 +173,22 @@
         <!-- END: Categories -->
 
         <!-- START: Pagination -->    
-        {!! $pages->render() !!}
+        {!! $products->render() !!}
         <!-- END: Pagination -->
     </div>
 
 </div>
 
-<!-- START: Page Create Modal Dialog -->
-<div class="modal fade" id="ModalPageCreate">
+<!-- START: Product Create Modal Dialog -->
+<div class="modal fade" id="ModalProductCreate">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">×</button>
-                <h3>New Page</h3>
+                <h3>New Product</h3>
             </div>
             <div class="modal-body">
-                <form name="FormPageCreate" method="post" action="<?php echo \Sinevia\Cms\Helpers\Links::adminPageCreate(); ?>">
+                <form name="FormProductCreate" method="post" action="<?php echo \Sinevia\Shop\Helpers\Links::adminProductCreate(); ?>">
                     <div class="form-group">
                         <label>Title</label>
                         <input name="Title" value="" class="form-control" />
@@ -201,40 +201,40 @@
                     <span class="glyphicon glyphicon-chevron-left"></span>
                     Cancel
                 </a>
-                <a id="modal-close" href="#" class="btn btn-success" data-dismiss="modal" onclick="FormPageCreate.submit();">
+                <a id="modal-close" href="#" class="btn btn-success" data-dismiss="modal" onclick="FormProductCreate.submit();">
                     <span class="glyphicon glyphicon-ok-circle"></span>
-                    Create page
+                    Create product
                 </a>
             </div>
         </div>
     </div>
 </div>
 <script>
-    function showPageCreateModal() {
-        $('#ModalPageCreate').modal('show');
+    function showProductCreateModal() {
+        $('#ModalProductCreate').modal('show');
     }
 </script>
-<!-- END: Page Create Modal Dialog -->
+<!-- END: Product Create Modal Dialog -->
 
 
-<!-- START: Page Delete Modal Dialog -->
-<div class="modal fade" id="ModalPageDelete">
+<!-- START: Product Delete Modal Dialog -->
+<div class="modal fade" id="ModalProductDelete">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">×</button>
-                <h3>Confirm Page Delete</h3>
+                <h3>Confirm Product Delete</h3>
             </div>
             <div class="modal-body">
                 <div>
-                    Are you sure you want to delete this page?
+                    Are you sure you want to delete this product?
                 </div>
                 <div>
                     Note! This action cannot be undone.
                 </div>
 
-                <form name="FormPageDelete" method="post" action="<?php echo \Sinevia\Cms\Helpers\Links::adminPageDelete(); ?>">
-                    <input type="hidden" name="PageId" value="">
+                <form name="FormProductDelete" method="post" action="<?php echo \Sinevia\Shop\Helpers\Links::adminProductDelete(); ?>">
+                    <input type="hidden" name="ProductId" value="">
                     <?php echo csrf_field(); ?>
                 </form>
             </div>
@@ -243,37 +243,37 @@
                     <span class="glyphicon glyphicon-chevron-left"></span>
                     Cancel
                 </a>
-                <a id="modal-close" href="#" class="btn btn-danger" data-dismiss="modal" onclick="FormPageDelete.submit();">
+                <a id="modal-close" href="#" class="btn btn-danger" data-dismiss="modal" onclick="FormProductDelete.submit();">
                     <span class="glyphicon glyphicon-remove-sign"></span>
-                    Delete Page
+                    Delete Product
                 </a>
             </div>
         </div>
     </div>
 </div>
 <script>
-    function confirmPageDelete(page_id) {
-        $('#ModalPageDelete input[name=PageId]').val(page_id);
-        $('#ModalPageDelete').modal('show');
+    function confirmProductDelete(product_id) {
+        $('#ModalProductDelete input[name=ProductId]').val(product_id);
+        $('#ModalProductDelete').modal('show');
     }
 </script>
-<!-- END: Page Delete Modal Dialog -->
+<!-- END: Product Delete Modal Dialog -->
 
-<!-- START: Page Move to Trash Modal Dialog -->
-<div class="modal fade" id="ModalPageMoveToTrash">
+<!-- START: Product Move to Trash Modal Dialog -->
+<div class="modal fade" id="ModalProductMoveToTrash">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">×</button>
-                <h3>Confirm Page Move to Trash</h3>
+                <h3>Confirm Product Move to Trash</h3>
             </div>
             <div class="modal-body">
                 <div>
-                    Are you sure you want to move this page to trash?
+                    Are you sure you want to move this product to trash?
                 </div>
 
-                <form name="FormPageMoveToTrash" method="post" action="<?php echo \Sinevia\Cms\Helpers\Links::adminPageMoveToTrash(); ?>">
-                    <input type="hidden" name="PageId" value="">
+                <form name="FormProductMoveToTrash" method="post" action="<?php echo \Sinevia\Shop\Helpers\Links::adminProductMoveToTrash(); ?>">
+                    <input type="hidden" name="ProductId" value="">
                     <?php echo csrf_field(); ?>
                 </form>
             </div>
@@ -282,7 +282,7 @@
                     <span class="glyphicon glyphicon-chevron-left"></span>
                     Cancel
                 </a>
-                <a id="modal-close" href="#" class="btn btn-danger" data-dismiss="modal" onclick="FormPageMoveToTrash.submit();">
+                <a id="modal-close" href="#" class="btn btn-danger" data-dismiss="modal" onclick="FormProductMoveToTrash.submit();">
                     <span class="glyphicon glyphicon-trash"></span>
                     Move to Trash
                 </a>
@@ -291,12 +291,12 @@
     </div>
 </div>
 <script>
-    function confirmPageMoveToTrash(pageId) {
-        $('#ModalPageMoveToTrash input[name=PageId]').val(pageId);
-        $('#ModalPageMoveToTrash').modal('show');
+    function confirmProductMoveToTrash(productId) {
+        $('#ModalProductMoveToTrash input[name=ProductId]').val(productId);
+        $('#ModalProductMoveToTrash').modal('show');
     }
 </script>
-<!-- END: Page Move to Trash Modal Dialog -->
+<!-- END: Product Move to Trash Modal Dialog -->
 
 
 @stop
