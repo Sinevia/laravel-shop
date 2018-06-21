@@ -268,17 +268,19 @@ class ShopController extends \Illuminate\Routing\Controller {
         $frontpage = request('Frontpage', old('Frontpage', ''));
 
         $statuses = [
-            \App\Models\Shop\Product::STATUS_DRAFT => 'Draft',
-            \App\Models\Shop\Product::STATUS_PUBLISHED => 'Published',
-            \App\Models\Shop\Product::STATUS_UNPUBLISHED => 'Unpublished',
-            \App\Models\Shop\Product::STATUS_DELETED => 'Deleted',
+            \Sinevia\Shop\Models\Product::STATUS_DRAFT => 'Draft',
+            \Sinevia\Shop\Models\Product::STATUS_PUBLISHED => 'Published',
+            \Sinevia\Shop\Models\Product::STATUS_UNPUBLISHED => 'Unpublished',
+            //\Sinevia\Shop\Models\Product::STATUS_DELETED => 'Deleted',
         ];
-        $roots = \App\Models\Shop\Category::where('ParentId', '=', '')
+
+        $roots = \Sinevia\Shop\Models\Category::where('ParentId', '=', '')
                 ->orderBy('Sequence', 'ASC')
                 ->get();
-        return view('admin.shop.product-create', get_defined_vars());
+
+        return view('shop::admin/product-create', get_defined_vars());
     }
-    
+
     function getProductManager() {
         $view = request('view', '');
         $filterStatus = request('filter_status', '');
@@ -288,6 +290,7 @@ class ShopController extends \Illuminate\Routing\Controller {
         if ($filterStatus == 'Deleted') {
             $view = 'trash';
         }
+        $filterCategory = request('filter_category', '');
         $session_order_by = \Session::get('shop_product_manager_by', 'Id');
         $session_order_sort = \Session::get('shop_product_manager_sort', 'asc');
         $orderby = request('by', $session_order_by);
@@ -315,6 +318,10 @@ class ShopController extends \Illuminate\Routing\Controller {
 //            $default_translation = $page->translation('en');
 //            $pages[$i]->Title = $default_translation->Title;
 //        }
+        $roots = \Sinevia\Shop\Models\Category::where('ParentId', '=', '')
+                ->orderBy('Sequence', 'ASC')
+                ->get();
+        
         return view('shop::admin/product-manager', get_defined_vars());
     }
 
@@ -497,14 +504,16 @@ class ShopController extends \Illuminate\Routing\Controller {
 
         $validator = \Validator::make(\Request::all(), $rules);
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator->errors())->withInput(\Request::all());
+            return redirect()->back()
+                    ->withErrors($validator->errors())
+                    ->withInput(\Request::all());
         }
 
         $categoryId = trim(request('CategoryId', ''));
         $description = trim(request('Description', ''));
         $price = trim(request('Price', ''));
         $quantity = trim(request('Quantity', ''));
-        $status = trim(request('Status', \App\Models\Shop\Product::STATUS_DRAFT));
+        $status = trim(request('Status', \Sinevia\Shop\Models\Product::STATUS_DRAFT));
         $summary = trim(request('Summary', ''));
         $title = trim(request('Title', ''));
         $published = strtotime(request('Published', date('Y-m-d H:i:s')));
@@ -512,7 +521,7 @@ class ShopController extends \Illuminate\Routing\Controller {
         \DB::beginTransaction();
 
         try {
-            $product = new \App\Models\Shop\Product();
+            $product = new \Sinevia\Shop\Models\Product();
             $product->Title = $title;
             $product->Summary = $summary;
             $product->Description = $description;
@@ -523,7 +532,8 @@ class ShopController extends \Illuminate\Routing\Controller {
             $product->save();
 
             \DB::commit();
-            return redirect(action('Admin\ShopController@getProductManager'))->with('success', 'Products successfully created');
+            return redirect(\Sinevia\Shop\Helpers\Links::adminProductManager())
+                    ->with('success', 'Products successfully created');
         } catch (Exception $e) {
             
         }
