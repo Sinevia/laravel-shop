@@ -16,7 +16,7 @@ class Category extends BaseModel {
 
     public function getChildren() {
         $result = self::where('ParentId', '=', $this->Id)
-                ->orderBy('Position', 'ASC')
+                ->orderBy('Sequence', 'ASC')
                 ->get();
         if ($result == false) {
             return array();
@@ -95,7 +95,7 @@ class Category extends BaseModel {
                         $table->engine = 'InnoDB';
                         $table->string($o->primaryKey, 40)->primary();
                         $table->string('ParentId', 40)->index();
-                        $table->integer('Position')->index();
+                        $table->integer('Sequence')->index();
                         $table->string('Status', 50)->default('Published')->index();
                         $table->string('Title', 255)->index();
                         $table->datetime('CreatedAt')->nullable()->default(null);
