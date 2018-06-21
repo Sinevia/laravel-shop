@@ -1,91 +1,71 @@
-@extends('admin.layout')
+<?php if (View::exists(config('shop.layout-master'))) { ?>
+    @extends(config('shop.layout-master'))
+<?php } ?>
 
-@section('webpage_title', 'Products')
+@section('webpage_title', 'Product Manager')
 
 @section('webpage_header')
-<section class="content-header">
-    <h1>
-        Products
-    </h1>
-    <ol class="breadcrumb">
-        <li><a href="<?php echo action('Admin\HomeController@anyIndex'); ?>"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="<?php echo action('Admin\ShopController@anyIndex'); ?>">Shop</a></li>
-        <li class="active">Products</li>
-    </ol>
-</section>
+<h1>
+    Product Manager
+    <button type="button" class="btn btn-primary pull-right" onclick="showProductCreateModal();">
+        <span class="glyphicon glyphicon-plus-sign"></span>
+        Add Product
+    </button>
+</h1>
+<ol class="breadcrumb">
+    <li><a href="<?php echo \Sinevia\Shop\Helpers\Links::adminHome(); ?>"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li><a href="<?php echo \Sinevia\Shop\Helpers\Links::adminProductManager(); ?>">Shop</a></li>
+    <li class="active"><a href="<?php echo \Sinevia\Shop\Helpers\Links::adminProductManager(); ?>">Products</a></li>
+</ol>
 @stop
 
 @section('webpage_content')
+
+@include('shop::shared.navigation')
+
 <div class="box box-primary">
     <div class="box-header with-border">
-        <a href="<?php echo action('Admin\ShopController@getProductCreate'); ?>" class="btn btn-success pull-right">
-            <span class="glyphicon glyphicon-plus-sign"></span>
-            New Product
-        </a>
-    </div>
-
-    <div class="box-body">
-
         <!-- START: Filter -->
         <div class="well hidden-sm hidden-xs">
             <form class="form-inline" name="form_filter" method="get" style="margin:0px;">
                 Filter:
                 <div class="form-group">
-                    <label class="sr-only" for="filter_category">Status</label>
+                    <label class="sr-only">Status</label>
                     <select id="filter_status" name="filter_status" class="form-control" onchange="form_filter.submit();">
                         <option value="">- Status -</option>
-                        <?php $selected = ($filter_status != 'Draft') ? '' : ' selected="selected"'; ?>
+                        <?php $selected = ($filterStatus != 'Draft') ? '' : ' selected="selected"'; ?>
                         <option value="Draft" <?php echo $selected; ?>>Draft</option>
-                        <?php $selected = ($filter_status != 'Published') ? '' : ' selected="selected"'; ?>
+                        <?php $selected = ($filterStatus != 'Published') ? '' : ' selected="selected"'; ?>
                         <option value="Published" <?php echo $selected; ?>>Published</option>
-                        <?php $selected = ($filter_status != 'Unpublished') ? '' : ' selected="selected"'; ?>
+                        <?php $selected = ($filterStatus != 'Unpublished') ? '' : ' selected="selected"'; ?>
                         <option value="Unpublished" <?php echo $selected; ?>>Unpublished</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="sr-only" for="filter_category">Category</label>
-
-                    <select id="filter_category" name="filter_category" class="form-control" onchange="form_filter.submit();">
-                        <?php $selected = ($filter_category == '') ? 'selected="selected"' : ''; ?>
-                        <option value="" <?php echo $selected ?> >- Category -</option>
-                        <optgroup label="Categories">
-                            <?php foreach ($roots as $root) { ?>
-                                <?php $nodes = $root->traverse(); ?>
-                                <?php foreach ($nodes as $node) { ?>
-                                    <?php
-                                    $nodeId = $node['Id'];
-                                    $path = $node->getPath();
-                                    $selected = ($filter_category != $nodeId) ? '' : ' selected="selected"';
-                                    if (count($path) != 1) {
-                                        $node_name = str_repeat("&nbsp;&nbsp;", count($path) - 1) . '- ' . $node["Title"];
-                                    } else {
-                                        $node_name = $node["Title"];
-                                    }
-                                    ?>
-                                    <option value="<?php echo $node['Id']; ?>" <?php echo $selected; ?>><?php echo $node_name; ?></option>
-                                <?php } ?>
-                            <?php } ?>
-                        </optgroup>
                     </select>
                 </div>
 
                 <button class="btn btn-primary">
                     <span class="glyphicon glyphicon-search"></span>
                 </button>
-                <input type="hidden" name="cmd" value="products_manager">
+
+                <button type="button" class="btn btn-primary pull-right" onclick="showProductCreateModal();">
+                    <span class="glyphicon glyphicon-plus-sign"></span>
+                    Add Product
+                </button>
             </form>
         </div>
         <!-- END: Filter -->
 
+    </div>
+
+    <div class="box-body">
+
         <ul class="nav nav-tabs" style="margin-bottom: 3px;">
             <li class="<?php if ($view == '') { ?>active<?php } ?>">
-                <a href="?cmd=products_manager">
+                <a href="?view=all">
                     <span class="glyphicon glyphicon-list"></span> Live
                 </a>
             </li>
             <li class="<?php if ($view == 'trash') { ?>active<?php } ?>">
-                <a href="?cmd=products_manager&view=trash">
+                <a href="?&view=trash">
                     <span class="glyphicon glyphicon-trash"></span> Trash
                 </a>
             </li>
@@ -106,9 +86,18 @@
         <table id="table_articles" class="table table-striped">
             <tr>
                 <th style="text-align:center;">
-                    <a href="?cmd=products-manager&amp;by=product&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
-                        Product&nbsp;<?php
-                        if ($orderby === 'product') {
+                    <a href="?cmd=products-manager&amp;by=Title&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
+                        Title&nbsp;<?php
+                        if ($orderby === 'Title') {
+                            if ($sort == 'asc') {
+                                ?>&#8595;<?php } else { ?>&#8593;<?php
+                            }
+                        }
+                        ?>
+                    </a>,
+                    <a href="?cmd=products-manager&amp;by=Alias&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
+                        Alias&nbsp;<?php
+                        if ($orderby === 'Alias') {
                             if ($sort == 'asc') {
                                 ?>&#8595;<?php } else { ?>&#8593;<?php
                             }
@@ -116,8 +105,8 @@
                         ?>
                     </a>,
                     <a href="?cmd=products-manager&amp;by=id&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
-                        Ref&nbsp;<?php
-                        if ($orderby === 'id') {
+                        ID&nbsp;<?php
+                        if ($orderby === 'Id') {
                             if ($sort == 'asc') {
                                 ?>&#8595;<?php } else { ?>&#8593;<?php
                             }
@@ -126,9 +115,9 @@
                     </a>
                 </th>
                 <th style="text-align:center;width:100px;">
-                    <a href="?cmd=products-manager&amp;by=status&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
+                    <a href="?cmd=products-manager&amp;by=Status&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
                         Status&nbsp;<?php
-                        if ($orderby === 'status') {
+                        if ($orderby === 'Status') {
                             if ($sort == 'asc') {
                                 ?>&#8595;<?php } else { ?>&#8593;<?php
                             }
@@ -136,87 +125,178 @@
                         ?>
                     </a>
                 </th>
-                <th style="text-align:center;width:100px;">
-                    <a href="?cmd=products-manager&amp;by=status&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
-                        Price&nbsp;<?php
-                        if ($orderby === 'status') {
-                            if ($sort == 'asc') {
-                                ?>&#8595;<?php } else { ?>&#8593;<?php
-                            }
-                        }
-                        ?>
-                    </a>
-                </th>
-                <th style="text-align:center;width:100px;">
-                    <a href="?cmd=products-manager&amp;by=status&amp;sort=<?php if ($sort == 'asc') { ?>desc<?php } else { ?>asc<?php } ?>">
-                        Quantity&nbsp;<?php
-                        if ($orderby === 'status') {
-                            if ($sort == 'asc') {
-                                ?>&#8595;<?php } else { ?>&#8593;<?php
-                            }
-                        }
-                        ?>
-                    </a>
-                </th>
-                <th style="text-align:center;width:100px;">Category</th>
-                <th style="text-align:center;width:200px;">Action</th>
+                <th style="text-align:center;width:160px;">Action</th>
             </tr>
 
             <?php foreach ($products as $product) { ?>
                 <tr>
-                    <td style="text-align:left;vertical-align: middle;">
-                        <?php echo $product['Title']; ?>
-                        <div style="font-size:10px;color: #999;">
-                            Ref. <?php echo $product['Id']; ?><br> 
+                    <td>
+                        <div style="color:#333;font-size: 14px;font-weight:bold;">
+                            <?php echo $product->Title; ?>
+                        </div>                        
+                        <div style="color:#333;font-size: 12px;font-style:italic;">
+                            <?php echo $product->Alias; ?>
                         </div>
-                    </td>
+                        <div style="color:#999;font-size: 10px;">
+                            ref. <?php echo $product->Id; ?>
+                        </div>
                     <td style="text-align:center;vertical-align: middle;">
                         <?php echo $product['Status']; ?><br>
                     </td>
                     <td style="text-align:center;vertical-align: middle;">
-                        <?php echo $product['Price']; ?><br>
-                    </td>
-                    <td style="text-align:center;vertical-align: middle;">
-                        <?php echo $product['Quantity']; ?><br>
-                    </td>
-                    <td style="text-align:center;vertical-align: middle;">
-                        <?php $category = App\Models\Shop\Category::find($product['CategoryId']); ?>
-                        <?php if ($category != null) { ?>
-                            <?php echo $category['Title']; ?>
-                        <?php } else { ?>
-                            Unassigned
-                        <?php } ?>
-                    </td>
-                    <td style="text-align:center;vertical-align: middle;">
-                        <a href="<?php echo action('Admin\ShopController@getProductUpdate'); ?>?ProductId=<?php echo $product['Id']; ?>" class="btn btn-sm btn-warning">
+                        <a href="<?php // echo $product->url(); ?>" class="btn btn-sm btn-success" target="_blank">
+                            <span class="glyphicon glyphicon-eye-open"></span>
+                            View
+                        </a>
+                        <a href="<?php echo \Sinevia\Shop\Helpers\Links::adminProductUpdate(['ProductId' => $product['Id']]); ?>" class="btn btn-sm btn-warning">
                             <span class="glyphicon glyphicon-edit"></span>
                             Edit
                         </a>
-                        <button class="btn btn-sm btn-danger" onclick="confirm_product_delete('<?php echo $product['Id']; ?>');">
-                            <?php if ($view == "") { ?>
-                                <span class="glyphicon glyphicon-trash"></span>
-                                Trash
-                            <?php } else { ?>
+
+                        <?php if ($product->Status == 'Deleted') { ?>
+                            <button class="btn btn-sm btn-danger" onclick="confirmProductDelete('<?php echo $product->Id; ?>');">
                                 <span class="glyphicon glyphicon-remove-sign"></span>
                                 Delete
-                            <?php } ?>
-                        </button>
+                            </button>
+                        <?php } ?>
+
+                        <?php if ($product->Status != 'Deleted') { ?>
+                            <button class="btn btn-sm btn-danger" onclick="confirmProductMoveToTrash('<?php echo $product->Id; ?>');">
+                                <span class="glyphicon glyphicon-trash"></span>
+                                Trash
+                            </button>
+                        <?php } ?>
                     </td>
                 </tr>
             <?php } ?>
         </table>
         <!-- END: Categories -->
 
-        <!-- START: Pagination -->
-        <?php echo $products->render(); ?>
+        <!-- START: Pagination -->    
+        {!! $products->render() !!}
         <!-- END: Pagination -->
-    </div>
-
-    <div class="box-footer with-border">
     </div>
 
 </div>
 
-@include('admin/shop/product-delete-modal')
+<!-- START: Product Create Modal Dialog -->
+<div class="modal fade" id="ModalProductCreate">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h3>New Product</h3>
+            </div>
+            <div class="modal-body">
+                <form name="FormProductCreate" method="post" action="<?php echo \Sinevia\Shop\Helpers\Links::adminProductCreate(); ?>">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input name="Title" value="" class="form-control" />
+                    </div>
+                    <?php echo csrf_field(); ?>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a id="modal-close" href="#" class="btn btn-info pull-left" data-dismiss="modal">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                    Cancel
+                </a>
+                <a id="modal-close" href="#" class="btn btn-success" data-dismiss="modal" onclick="FormProductCreate.submit();">
+                    <span class="glyphicon glyphicon-ok-circle"></span>
+                    Create product
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function showProductCreateModal() {
+        $('#ModalProductCreate').modal('show');
+    }
+</script>
+<!-- END: Product Create Modal Dialog -->
 
-@endsection
+
+<!-- START: Product Delete Modal Dialog -->
+<div class="modal fade" id="ModalProductDelete">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h3>Confirm Product Delete</h3>
+            </div>
+            <div class="modal-body">
+                <div>
+                    Are you sure you want to delete this product?
+                </div>
+                <div>
+                    Note! This action cannot be undone.
+                </div>
+
+                <form name="FormProductDelete" method="post" action="<?php echo \Sinevia\Shop\Helpers\Links::adminProductDelete(); ?>">
+                    <input type="hidden" name="ProductId" value="">
+                    <?php echo csrf_field(); ?>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a id="modal-close" href="#" class="btn btn-info pull-left" data-dismiss="modal">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                    Cancel
+                </a>
+                <a id="modal-close" href="#" class="btn btn-danger" data-dismiss="modal" onclick="FormProductDelete.submit();">
+                    <span class="glyphicon glyphicon-remove-sign"></span>
+                    Delete Product
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function confirmProductDelete(product_id) {
+        $('#ModalProductDelete input[name=ProductId]').val(product_id);
+        $('#ModalProductDelete').modal('show');
+    }
+</script>
+<!-- END: Product Delete Modal Dialog -->
+
+<!-- START: Product Move to Trash Modal Dialog -->
+<div class="modal fade" id="ModalProductMoveToTrash">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h3>Confirm Product Move to Trash</h3>
+            </div>
+            <div class="modal-body">
+                <div>
+                    Are you sure you want to move this product to trash?
+                </div>
+
+                <form name="FormProductMoveToTrash" method="post" action="<?php echo \Sinevia\Shop\Helpers\Links::adminProductMoveToTrash(); ?>">
+                    <input type="hidden" name="ProductId" value="">
+                    <?php echo csrf_field(); ?>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a id="modal-close" href="#" class="btn btn-info pull-left" data-dismiss="modal">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                    Cancel
+                </a>
+                <a id="modal-close" href="#" class="btn btn-danger" data-dismiss="modal" onclick="FormProductMoveToTrash.submit();">
+                    <span class="glyphicon glyphicon-trash"></span>
+                    Move to Trash
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function confirmProductMoveToTrash(productId) {
+        $('#ModalProductMoveToTrash input[name=ProductId]').val(productId);
+        $('#ModalProductMoveToTrash').modal('show');
+    }
+</script>
+<!-- END: Product Move to Trash Modal Dialog -->
+
+
+@stop
